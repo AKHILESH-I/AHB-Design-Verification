@@ -18,11 +18,11 @@ module ahb_tb( );
   wire fifo_empty, fifo_full;
 
   ahb_master DUT (.CLK_MASTER(clk), .RESET_MASTER(rst), .HREADY(hready), .HRDATA(hrdata),
-    // User-defined signals
+   // User-defined signals
     .data_top(data_top), .write_top(write_top), .beat_length(beat_length), .enb(enb), .addr_top(addr_top), .wrap_enb(wrap_enable),
-    // AHB Outputs
+   // AHB Outputs
     .HADDR(HADDR), .HWRITE(HWRITE), .HSIZE(HSIZE), .HWDATA(HWDATA), .HBURST(HBURST), .HTRANS(HTRANS),
-    // FIFO Status
+  // FIFO Status
     .fifo_empty  (fifo_empty), .fifo_full(fifo_full));
 
   ahb_slave slave(.HCLK(clk), .HRESET(rst), .HADDR(HADDR), .HWRITE(HWRITE), .HSIZE(HSIZE), .HBURST(HBURST), .HTRANS(HTRANS),
