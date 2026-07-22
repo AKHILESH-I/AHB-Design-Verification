@@ -1,14 +1,14 @@
 module ahb_master(
-  input CLK_MASTER, RESET_MASTER, HREADY, //o/p from S and i/p to M
-  input [31:0] HRDATA, //o/p from S and i/p to M
-//USER DEFINED SIGNALS
-  input [31:0] data_top, //i/p to M given by TB
-  input write_top, //ctrl signal for W = 1 and R = 0 operation
-  input [3:0] beat_length, //describe the beat of the data
-  input enb, //1 = start W or R operation
-  input [31:0] addr_top, //base address 
-  input wrap_enb, //1 = wrapping burst, or incremental burst
-//AHB O/P signals
+  input CLK_MASTER, RESET_MASTER, HREADY,
+  input [31:0] HRDATA,
+// User-defined Inputs
+  input [31:0] data_top,
+  input write_top,
+  input [3:0] beat_length,
+  input enb,
+  input [31:0] addr_top,
+  input wrap_enb,
+// AHB Outputs
   output [31:0] HADDR,
   output reg HWRITE,
   output reg [2:0] HSIZE,
@@ -19,7 +19,7 @@ module ahb_master(
   output fifo_empty, fifo_full);
   reg [2:0] present_state, next_state;
   reg [31:0] addr_internal;
-  integer i = 0;
+  integer i;
   reg [3:0] count;
 // fifo signals
   reg [3:0] wr_ptr, rd_ptr;
@@ -39,12 +39,11 @@ module ahb_master(
       wr_ptr <= 0;
     end
     else if(write_top && !fifo_full) begin
-//    else if(fifo_wr_en && !fifo_full) begin
       mem[wr_ptr] <= data_top;
       wr_ptr <= wr_ptr + 1'b1;
     end 
   end
-//fsm
+// FSM : Sequential Logic
   always @(posedge CLK_MASTER) begin
     if(RESET_MASTER) begin
       present_state <= idle;
@@ -71,20 +70,20 @@ module ahb_master(
       end
       if(present_state == idle && next_state  == write_state_address)
         count <= 0;
-      else if (present_state == write_state_data && beat_length_reg == 4 &&HREADY && !wrap_enb)
+      else if(present_state == write_state_data && beat_length_reg == 4 &&HREADY && !wrap_enb)
       count <= count + 1'b1;
       if(present_state == write_state_data && beat_length_reg == 4 && HREADY  && !wrap_enb) begin
         rd_ptr <= rd_ptr + 1'b1;
         addr_internal <= addr_internal + 4;
       end
-      if (present_state == write_state_data &&
+      if(present_state == write_state_data &&
           hburst_reg == 3'b000 &&
           HREADY) begin
           rd_ptr <= rd_ptr + 1'b1;
       end
     end
   end
-//next_state logic
+// Next-State Combinational Logic
   always @(*) begin
     next_state = present_state;
       HWRITE = hwrite_reg;
@@ -110,12 +109,12 @@ module ahb_master(
     write_state_address: begin
       HWRITE = 1'b1;
       if(hburst_reg == 3'b000) begin
-      HTRANS = 2'b10;
-      next_state = write_state_data;
-      end
-    else if(hburst_reg == 3'b011) begin
         HTRANS = 2'b10;
         next_state = write_state_data;
+      end
+    else if(hburst_reg == 3'b011) begin
+      HTRANS = 2'b10;
+      next_state = write_state_data;
     end
     end
     write_state_data: begin
