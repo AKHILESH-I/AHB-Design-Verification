@@ -12,7 +12,7 @@ module ahb_slave(
   reg hwrite_internal;
   reg [31:0] addr_internal;
   reg [1:0] ps, ns;
-  //PRESENT STATE
+//PRESENT STATE
   always @(posedge HCLK)
   begin
     if(HRESET) begin
@@ -21,7 +21,7 @@ module ahb_slave(
     else
       ps <= ns;
     end
-    //NEXT STATE LOGIC
+//NEXT STATE LOGIC
     always @(*) begin
       htrans_internal = 0;
       hwrite_internal = 0;
